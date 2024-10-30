@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools Inventory</title>
+    <link rel="stylesheet" type="text/css" href="../css/Site.css">
+    <script>
+        function clearSearchAndGoBack() {
+            document.cookie = "search=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = 'admin_dashboard.php';
+        }
+
+        function searchCategories() {
+            var search = document.getElementById('search').value;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'view_categories.php?search=' + encodeURIComponent(search), true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(xhr.responseText, 'text/html');
+                    var newTableBody = doc.querySelector('#categoriesTable tbody').innerHTML;
+                    document.querySelector('#categoriesTable tbody').innerHTML = newTableBody;
+                }
+            };
+            xhr.send();
+        }
+    </script>
+</head>
+<body>
+    <h2>Tools Inventory</h2>
+    <form method="GET" action="view_categories.php">
+        <input type="text" id="search" name="search" placeholder="Search categories..." value="{{ search }}" onkeyup="searchCategories()">
+        <button type="submit">Search</button>
+    </form>
+    <table id="categoriesTable" class="table table-hover" style="margin-top: 1px">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Comments</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+                <tr>
+                    <td>{{ category.category_name }}</td>
+                    <td>{{ category.comment }}</td>
+                    <td>
+                        <a href="edit_categories.php?id={{ category.id }}" class="btn btn-primary">Edit</a>
+                        <a href="delete_category.php?id={{ category.id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Category?');">Delete</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Data not found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <center>
+        <div class="body">
+            {% if page >= 2 %}
+                <a class="active" href="view_categories.php?page={{ page - 1 }}&search={{ search }}">Prev</a>
+            {% endif %}
+            {% for i in 1..total_pages %}
+                {% if i == page %}
+                    <a class="active" href="view_categories.php?page={{ i }}&search={{ search }}">{{ i }}</a>
+                {% else %}
+                    <a class="active" href="view_categories.php?page={{ i }}&search={{ search }}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page < total_pages %}
+                <a class="active" href="view_categories.php?page={{ page + 1 }}&search={{ search }}">Next</a>
+            {% endif %}
+        </div>
+        <br><br>
+        <button type="button" class="btn btn-primary" onclick="clearSearchAndGoBack()">Go Back</button>
+    </center>
+</body>
+</html>

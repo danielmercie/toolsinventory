@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+    <link rel="stylesheet" type="text/css" href="../css/Site.css">
+</head>
+<body>
+    <h2>Add User</h2>
+    <form action="register_user.php" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="text" id="password" name="password" required><br><br>
+        
+        <label for="role">Role:</label>
+        <select id="role" name="role" required>
+            <option value="ADMIN">ADMIN</option>
+            <option value="USER">USER</option>
+        </select><br><br>
+        
+        <label for="site">Site:</label>
+        <select id="site" name="site_id" required>
+            {% for site in sites %}
+                <option value="{{ site.site_id }}">{{ site.site_name }}</option>
+            {% endfor %}
+        </select><br><br>
+        
+        <input type="submit" value="Add User">
+        <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
+    </form>
+</body>
+</html>
