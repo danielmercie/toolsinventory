@@ -25,6 +25,6 @@ include 'includes/authenticate.php';
             <button type="submit" class="btn btn-primary btn-block btn-large">Login</button>
         </form>
     </div>
-    <script src="js/index.js"></script>
+
 </body>
 </html>

@@ -43,6 +43,7 @@ header li {
     display: inline;
     padding: 0 20px 0 20px;
 }
+
 header #branding {
     float: left;
 }
@@ -205,4 +206,7 @@ input, button {
 }
 .full-width {
     width: 96.5%;
+}
+.no-bullets {
+    list-style-type: none;
 }

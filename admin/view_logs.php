@@ -5,7 +5,7 @@ include '../includes/db.php';
 require_once '../logging/logactivity.php';
 
 // Pagination setup
-$records_per_page = 10;
+$records_per_page = 50;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $records_per_page;
 

@@ -2,21 +2,21 @@
 session_start();
 include '../includes/db.php';
 
-// Set session timeout duration (e.g., 300 seconds)
+// Set session timeout duration (e.g., 60 seconds)
 $timeout_duration = 300;
 
 // Check if the user is logged in
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: ../index.php");
     exit;
-}
+
 
 // Check if the user is an admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'ADMIN') {
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'USER') {
     header("Location: ../index.php");
     exit;
 }
-
+}
 // Check for session timeout
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     // Last request was more than $timeout_duration seconds ago

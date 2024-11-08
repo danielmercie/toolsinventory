@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "xIn5ONPU_uBwIv3G";
 $dbname = "tools_inventory";
 
 // Create connection

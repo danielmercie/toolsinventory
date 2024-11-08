@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html>
 <?php
 
 require_once '../includes/session.php';
 include '../includes/db.php';
 require_once '../logging/logactivity.php';
-
 
 $successMessage = "";
 
@@ -25,12 +22,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id'])) {
         $id = $_POST['id'];
         $username = $_POST['username'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $password = $_POST['password'];
         $role = $_POST['role'];
         $site_id = $_POST['site_id'];
+        $active = isset($_POST['active']) ? 1 : 0;
 
-        $stmt = $conn->prepare("UPDATE users SET username = ?, password = ?, role = ?, site_id = ? WHERE id = ?");
-        $stmt->bind_param("sssii", $username, $password, $role, $site_id, $id);
+        // Fetch the current password if the new password is not provided
+        if (empty($password)) {
+            $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $stmt->bind_result($current_password);
+            $stmt->fetch();
+            $stmt->close();
+        } else {
+            $current_password = password_hash($password, PASSWORD_DEFAULT);
+        }
+
+        $stmt = $conn->prepare("UPDATE users SET username = ?, password = ?, role = ?, site_id = ?, active = ? WHERE id = ?");
+        $stmt->bind_param("sssiii", $username, $current_password, $role, $site_id, $active, $id);
 
         if ($stmt->execute()) {
             $successMessage = "User updated successfully.";
@@ -83,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" id="username" name="username" value="<?php echo $user['username']; ?>" required><br><br>
             
             <label for="password">Password:</label>
-            <input type="text" id="password" name="password" required><br><br>
+            <input type="text" id="password" name="password" ><br><br>
             
             <label for="role">Role:</label>
             <select id="role" name="role" required>
@@ -97,6 +107,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <option value="<?= $site['site_id'] ?>" <?php if ($user['site_id'] == $site['site_id']) echo 'selected'; ?>><?= $site['site_name'] ?></option>
                 <?php endforeach; ?>
             </select><br><br>
+            
+            <label for="active">Active:</label>
+            <input type="checkbox" id="active" name="active" <?php if ($user['active']) echo 'checked'; ?>><br><br>
             
             <input type="submit" value="Update">
         </form>

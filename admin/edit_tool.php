@@ -1,11 +1,17 @@
-<!DOCTYPE html>
-<html>
 <?php
 
 require_once '../includes/session.php';
 include '../includes/db.php';
 
 $successMessage = "";
+
+// Fetch the ID of "Head Office Store"
+$head_office_store_id = null;
+$result = $conn->query("SELECT site_id FROM sites WHERE site_name = 'Head Office Store'");
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $head_office_store_id = $row['site_id'];
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id'])) {
@@ -18,6 +24,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $dop = $_POST['dop'];
         $quantity = $_POST['quantity'];
         $description = $_POST['description'];
+
+        // Check if the selected site is inactive
+        $stmt = $conn->prepare("SELECT active FROM sites WHERE site_id = ?");
+        $stmt->bind_param("i", $site_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $site = $result->fetch_assoc();
+        $stmt->close();
+
+        if ($site['active'] == 0 && $head_office_store_id !== null) {
+            $site_id = $head_office_store_id;
+        }
 
         $stmt = $conn->prepare("UPDATE tools SET name = ?, category_id = ?, supp_id = ?, site_id = ?, price = ?, dop = ?, quantity = ?, description = ? WHERE id = ?");
         $stmt->bind_param("siiidsisi", $name, $category_id, $supp_id, $site_id, $price, $dop, $quantity, $description, $id);
@@ -73,46 +91,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     <?php else: ?>
         <form action="edit_tool.php" method="post">
-            <input type="hidden" name="id" value="<?php echo $tool['id']; ?>">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($tool['id'], ENT_QUOTES, 'UTF-8'); ?>">
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="<?php echo $tool['name']; ?>" required><br><br>
+            <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($tool['name'], ENT_QUOTES, 'UTF-8'); ?>" required><br><br>
             
             <label for="category_id">Category:</label>
             <select class='dropdown' id="category_id" name="category_id" required>
-                <option value="<?php echo $tool['category_id']; ?>"><?php echo $tool['category_name']; ?></option>
+                <option value="<?php echo htmlspecialchars($tool['category_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($tool['category_name'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php while($category = $categories->fetch_assoc()): ?>
-                    <option value="<?php echo $category['id']; ?>"><?php echo $category['category_name']; ?></option>
+                    <option value="<?php echo htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($category['category_name'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endwhile; ?>
             </select><br><br>
             
             <label for="supp_id">Supplier:</label>
             <select class='dropdown' id="supp_id" name="supp_id" required>
-                <option value="<?php echo $tool['supp_id']; ?>"><?php echo $tool['supp_name']; ?></option>
+                <option value="<?php echo htmlspecialchars($tool['supp_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($tool['supp_name'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php while($supplier = $suppliers->fetch_assoc()): ?>
-                    <option value="<?php echo $supplier['supp_id']; ?>"><?php echo $supplier['supp_name']; ?></option>
+                    <option value="<?php echo htmlspecialchars($supplier['supp_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($supplier['supp_name'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endwhile; ?>
             </select><br><br>
             
             <label for="site_id">Site:</label>
             <select class='dropdown' name="site_id" required>
-                <option value="<?php echo $tool['site_id']; ?>"><?php echo $tool['site_name']; ?></option>
+                <option value="<?php echo htmlspecialchars($tool['site_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($tool['site_name'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php while($site = $sites->fetch_assoc()): ?>
-                    <option value="<?php echo $site['site_id']; ?>"><?php echo $site['site_name']; ?></option>
+                    <option value="<?php echo htmlspecialchars($site['site_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($site['site_name'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endwhile; ?>
             </select><br><br>
             
             <label for="price">Price:</label>
-            <input type="text" id="price" name="price" value="<?php echo $tool['price']; ?>" required><br><br>
+            <input type="text" id="price" name="price" value="<?php echo htmlspecialchars($tool['price'], ENT_QUOTES, 'UTF-8'); ?>" required><br><br>
             <center>
             <label for="dop">Date of Purchase:</label>
-            <input type="date" id="dop" name="dop" value="<?php echo $tool['dop']; ?>" required><br><br>
+            <input type="date" id="dop" name="dop" value="<?php echo htmlspecialchars($tool['dop'], ENT_QUOTES, 'UTF-8'); ?>" required><br><br>
             
             <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" name="quantity" value="<?php echo $tool['quantity']; ?>" required><br><br>
+            <input type="number" id="quantity" name="quantity" value="<?php echo htmlspecialchars($tool['quantity'], ENT_QUOTES, 'UTF-8'); ?>" required><br><br>
                 </center>
 
             <label for="description">Description:</label>
-            <input type="text" id="description" name="description" value="<?php echo $tool['description']; ?>" required><br><br>
+            <input type="text" id="description" name="description" value="<?php echo htmlspecialchars($tool['description'], ENT_QUOTES, 'UTF-8'); ?>" required><br><br>
             
             <input type="submit" value="Update">
         </form>

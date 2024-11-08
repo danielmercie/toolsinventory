@@ -7,8 +7,9 @@
     <link rel="stylesheet" type="text/css" href="../css/Site.css">
     <script>
         function clearSearchAndGoBack() {
-            window.location.href = 'admin_dashboard.php?clear_search_cookie=true';
-            }
+            document.cookie = "search=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = 'admin_dashboard.php';
+        }
 
         function searchTools() {
             var search = document.getElementById('search').value;
@@ -25,9 +26,16 @@
 </head>
 <body>
     <h2>Tools Inventory</h2>
-    <form method="GET" action="view_tools.php">
+    <form method="GET" action="user_dashboard.php">
         <input type="text" id="search" name="search" placeholder="Search tools..." value="{{ search }}" onkeyup="searchTools()">
         <button type="submit">Search</button>
+        <nav>
+            <center>
+            <ul>
+                <a href="../logout.php" class="button">Logout</a>
+            </ul>
+        </center>
+        </nav>
     </form>
     <table id="toolsTable">
         <tr>
@@ -40,7 +48,6 @@
             <th>Quantity</th>
             <th>Image</th>
             <th>Description</th>
-            <th>Actions</th>
         </tr>
         {% for tool in tools %}
             <tr>
@@ -53,11 +60,7 @@
                 <td>{{ tool.quantity }}</td>
                 <td><img src="{{ tool.image }}" width="100"></td>
                 <td>{{ tool.description }}</td>
-                <td>
-                    <a href="edit_tool.php?id={{ tool.id }}" class="btn btn-primary">Edit</a>
-                    <a href="delete_tool.php?id={{ tool.id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this tool?');">Delete</a>
-                </td>
-            </tr>
+                </tr>
         {% else %}
             <tr><td colspan="10">Data not found</td></tr>
         {% endfor %}
@@ -81,7 +84,7 @@
             {% endif %}
         </div>
         <br><br>
-        <button type="button" class="btn btn-primary" onclick="clearSearchAndGoBack()">Go Back</button>
+        
     </center>
 </body>
 </html>

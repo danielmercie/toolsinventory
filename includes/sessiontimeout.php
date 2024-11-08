@@ -13,6 +13,10 @@ session_destroy();
 </head>
 <body>
     <h2>Session Timed Out</h2>
-    <p>Your session has timed out due to inactivity. Please <a href="../index.php">log in</a> again to continue.</p>
+        <form>
+                <div class="alert alert-danger">
+                    <p>Your session has timed out due to inactivity. Please <a href="../index.php">log in</a> again to continue.</p>
+                </div>
+            </form>
 </body>
 </html>

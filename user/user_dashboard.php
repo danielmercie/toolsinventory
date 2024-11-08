@@ -1,77 +1,81 @@
-<!DOCTYPE html>
-<html>
 <?php
-include 'authenticate.php'; 
-include 'db.php';
+require_once '../vendor/autoload.php';
+require_once '../includes/sessionuser.php';
+include '../includes/db.php';
 
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+// Ensure user is logged in and get user ID
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page or handle the error
+    header('Location: login.php');
     exit;
 }
-?>
-<head>
-<title>Tools Inventory</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="css/Site.css">
-</head>
+$user_id = $_SESSION['user_id'];
 
-<header>
-        <div class="container">
-            <div id="branding">
-                <h1>Welcome to Tools Inventory</h1>
-            </div>
-            <nav>
-                <ul>
-                    <li>Hello, <?php echo $_SESSION['username'] ?> !</li>
-                    <li>Your role: <?php echo $_SESSION['role'] ?></li>
-                    <li><a href="logout.php" class="button">Logout</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-<body>
-    <h1>User Dashboard</h1>
+// Fetch the user's site_id
+$sql = "SELECT site_id FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$user_site_id = $user['site_id'];
 
+// Pagination setup
+$records_per_page = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start_from = ($page - 1) * $records_per_page;
 
-    <h2>Tools Inventory</h2>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Supplier</th>
-            <th>Price</th>
-            <th>Date of Purchase</th>
-            <th>Quantity</th>
-            <th>Image</th>
-            <th>Description</th>
-        </tr>
-    
-   
+// Search setup
+$search = isset($_GET['search']) ? $_GET['search'] : (isset($_COOKIE['search']) ? $_COOKIE['search'] : '');
+if (isset($_GET['search'])) {
+    setcookie('search', $search, time() + (3600), "/"); // 3600 = 1 hour
+}
 
-        <?php
-        $sql = "SELECT * FROM tools";
-        $result = $conn->query($sql);
+// Fetch records with limit for pagination
+$sql = "SELECT tools.id, tools.name, categories.category_name, suppliers.supp_name, sites.site_name, tools.price, tools.dop, tools.quantity, tools.image, tools.description 
+        FROM tools 
+        LEFT JOIN categories ON tools.category_id = categories.id 
+        LEFT JOIN suppliers ON tools.supp_id = suppliers.supp_id 
+        LEFT JOIN sites ON tools.site_id = sites.site_id 
+        WHERE tools.site_id = ? AND (
+            tools.name LIKE ? 
+            OR tools.description LIKE ? 
+            OR categories.category_name LIKE ? 
+            OR suppliers.supp_name LIKE ? 
+            OR sites.site_name LIKE ?
+        )
+        LIMIT ?, ?";
+$stmt = $conn->prepare($sql);
+$search_param = "%$search%";
+$stmt->bind_param('issssssi', $user_site_id, $search_param, $search_param, $search_param, $search_param, $search_param, $start_from, $records_per_page);
+$stmt->execute();
+$result = $stmt->get_result();
+$tools = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $tools[] = $row;
+    }
+}
 
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . $row["id"] . "</td>";
-                echo "<td>" . $row["name"] . "</td>";
-                echo "<td>" . $row["category"] . "</td>";
-                echo "<td>" . $row["supplier"] . "</td>";
-                echo "<td>" . $row["price"] . "</td>";
-                echo "<td>" . $row["dop"] . "</td>";
-                echo "<td>" . $row["quantity"] . "</td>";
-                echo "<td><img src='images/" . $row["image"] . "' width='100'></td>";
-                echo "<td>" . $row["description"] . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "data not found";
-        }
-    
-    ?>
+// Pagination logic
+$sql = "SELECT COUNT(id) AS total FROM tools WHERE site_id = ? AND name LIKE ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('is', $user_site_id, $search_param);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$total_records = $row['total'];
+$total_pages = ceil($total_records / $records_per_page);
 
+// Initialize Twig
+$loader = new \Twig\Loader\FilesystemLoader('templates');
+$twig = new \Twig\Environment($loader);
 
+// Render the template
+echo $twig->render('view_tools.twig', [
+    'search' => $search,
+    'tools' => $tools,
+    'page' => $page,
+    'total_records' => $total_records,
+    'total_pages' => $total_pages
+]);

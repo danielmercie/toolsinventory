@@ -1,4 +1,5 @@
 <?php
+
 require_once '../vendor/autoload.php';
 require_once '../includes/session.php';
 include '../includes/db.php';
@@ -16,27 +17,25 @@ if (isset($_GET['search'])) {
 }
 
 // Fetch records with limit for pagination
-$sql = "SELECT supp_id, supp_name, phone_number 
-        FROM suppliers 
-        WHERE supp_name LIKE ? 
-        OR phone_number LIKE ? 
-        ORDER BY supp_id 
+$sql = "SELECT site_id, site_name, active FROM sites 
+        WHERE site_name LIKE ? 
+        ORDER BY site_id 
         LIMIT ?, ?";
 $stmt = $conn->prepare($sql);
 $search_param = "%$search%";
-$stmt->bind_param("ssii", $search_param, $search_param, $start_from, $records_per_page);
+$stmt->bind_param("sii", $search_param, $start_from, $records_per_page);
 $stmt->execute();
 $result = $stmt->get_result();
-$suppliers = [];
+$sites = [];
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
-        $suppliers[] = $row;
+        $sites[] = $row;
     }
 }
 $stmt->close();
 
 // Pagination logic
-$sql = "SELECT COUNT(supp_id) AS total FROM suppliers WHERE supp_name LIKE ? OR phone_number LIKE ?";
+$sql = "SELECT COUNT(site_id) AS total FROM sites WHERE site_name LIKE ? OR active LIKE ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss", $search_param, $search_param);
 $stmt->execute();
@@ -51,11 +50,10 @@ $loader = new \Twig\Loader\FilesystemLoader('templates');
 $twig = new \Twig\Environment($loader);
 
 // Render the template
-echo $twig->render('view_suppliers.twig', [
+echo $twig->render('view_sites.twig', [
     'search' => $search,
-    'suppliers' => $suppliers,
+    'sites' => $sites,
     'page' => $page,
-    'total_records' => $total_records,
     'total_pages' => $total_pages
 ]);
 ?>

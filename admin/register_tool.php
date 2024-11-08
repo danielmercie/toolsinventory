@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $site_id = $_POST['site_id'];
 
     // Handle file upload
-    $target_dir = "uploads/";
+    $target_dir = "../uploads/";
     $target_file = $target_dir . basename($_FILES["image"]["name"]);
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
     $uploadOk = 1;

@@ -7,9 +7,8 @@
     <link rel="stylesheet" type="text/css" href="../css/Site.css">
     <script>
         function clearSearchAndGoBack() {
-            document.cookie = "search=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.location.href = 'admin_dashboard.php';
-        }
+            window.location.href = 'admin_dashboard.php?clear_search_cookie=true';
+            }
 
         function searchSuppliers() {
             var search = document.getElementById('search').value;
