@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Prepare and bind
-    $stmt = $conn->prepare("SELECT id, username, password, role, active FROM Users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT id, username, password, role, active FROM users WHERE username = ?");
     if ($stmt === false) {
         error_log('mysqli prepare() failed: ' . htmlspecialchars($conn->error));
         echo "An error occurred. Please try again later.";

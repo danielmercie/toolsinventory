@@ -3,7 +3,7 @@ session_start();
 include '../includes/db.php';
 
 // Set session timeout duration (e.g., 300 seconds)
-$timeout_duration = 300;
+$timeout_duration = 3600;
 
 // Check if the user is logged in
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {

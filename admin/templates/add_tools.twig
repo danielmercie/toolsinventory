@@ -5,53 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Tool</title>
     <link rel="stylesheet" type="text/css" href="../css/Site.css">
+
 </head>
 <body>
     <h2>Add Tool</h2>
     <form action="register_tool.php" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
+        <input type="text" id="name" name="name" maxlength="100" required><br><br>
         
         <label for="supplier">Supplier:</label><br>
+        <center>
         <select id="suppliers" name="supp_id" class="full-width" required>
             {% for supplier in suppliers %}
                 <option value="{{ supplier.supp_id }}">{{ supplier.supp_name }}</option>
             {% endfor %}
         </select><br><br>
-        
+        </center>
         <label for="price">Price:</label><br>
-        <input type="text" id="price" name="price" step="0.01" required><br><br>
-        
+        <input type="number" id="price" name="price" step="0.01" required><br><br>
+
         <center>
-        <label for="dop">Date of Purchase:</label>
+        <label for="dop">Date of Purchase:</label><br>
         <input type="date" id="dop" name="dop" required><br><br>
         </center>
-            
-        <label for="quantity">Quantity:</label><br>
-        <input type="text" id="quantity" name="quantity" required><br><br>
         
+
+        <label for="quantity">Quantity:</label><br>
+        <input type="number" id="quantity" name="quantity" maxlength="10" required><br><br>
+
         <center>
         <label for="image">Image:</label>
-        <input type="file" id="image" name="image" required><br><br>
+        <input type="file" id="image" name="image" accept="image/*" required><br><br>
         </center>
         
         <label for="description">Description:</label>
-        <input type="text" id="description" name="description" required><br><br>
-        
+        <input type="text" id="description" name="description" maxlength="255" required><br><br>
+        <center>
         <label for="category">Category:</label><br>
         <select id="category" name="category_id" class="full-width" required>
             {% for category in categories %}
                 <option value="{{ category.id }}">{{ category.category_name }}</option>
             {% endfor %}
         </select><br><br>
-        
+        </center>
+        <center>
         <label for="site">Site:</label> 
         <select id="site" name="site_id" class="full-width" required>
             {% for site in sites %}
                 <option value="{{ site.site_id }}">{{ site.site_name }}</option>
             {% endfor %}
         </select><br><br>
-        
+        </center>
         <input type="submit" value="Add Tool">
         <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
     </form>

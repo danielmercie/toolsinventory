@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php        
         } else {
             echo '<div class="alert alert-danger">';
-            echo "Error: " . $stmt->error;
+            echo "Error: ";
             echo '</div>';
         }
     }

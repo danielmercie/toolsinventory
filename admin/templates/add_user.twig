@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add User</title>
     <link rel="stylesheet" type="text/css" href="../css/Site.css">
+
 </head>
 <body>
     <h2>Add User</h2>
     <form action="register_user.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <input type="text" id="username" name="username" maxlength="50" required><br><br>
         
         <label for="password">Password:</label>
-        <input type="text" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="password" maxlength="100" required><br><br>
         
         <label for="role">Role:</label>
         <select id="role" name="role" required>
