@@ -7,8 +7,8 @@ require_once '../includes/session.php';
 require_once '../logging/logactivity.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $supplier_name = $_POST['supplier_name'];
-    $phone_number = $_POST['phone_number'];
+    $supplier_name = filter_input(INPUT_POST, 'supplier_name', FILTER_SANITIZE_SPECIAL_CHARS);
+    $phone_number = filter_input(INPUT_POST, 'phone_number', FILTER_SANITIZE_SPECIAL_CHARS);
 
     // Check if the supplier already exists
     $stmt = $conn->prepare("SELECT supp_id FROM suppliers WHERE supp_name = ?");
@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
         <form>
             <div class="alert alert-success">
-                <?php echo "Supplier $supplier_name already exists."; ?>
+                <?php echo htmlspecialchars("Supplier $supplier_name already exists.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
         <form>
             <div class="alert alert-success">
-                <?php echo "Supplier $supplier_name added successfully."; ?>
+                <?php echo htmlspecialchars("Supplier $supplier_name added successfully.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php        
         } else {
             echo '<div class="alert alert-danger">';
-            echo "Error: " . $stmt->error;
+            echo htmlspecialchars("Error: " . $stmt->error, ENT_QUOTES, 'UTF-8');
             echo '</div>';
         }
     }

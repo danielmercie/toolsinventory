@@ -10,17 +10,21 @@ require_once '../logging/logactivity.php';
 $sites = [];
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . htmlspecialchars($conn->connect_error, ENT_QUOTES, 'UTF-8'));
 }
 
 $siteResult = $conn->query("SELECT site_id, site_name, active FROM sites"); 
 while ($row = $siteResult->fetch_assoc()) {
-    $sites[] = $row;
+    $sites[] = [
+        'site_id' => htmlspecialchars($row['site_id'], ENT_QUOTES, 'UTF-8'),
+        'site_name' => htmlspecialchars($row['site_name'], ENT_QUOTES, 'UTF-8'),
+        'active' => htmlspecialchars($row['active'], ENT_QUOTES, 'UTF-8')
+    ];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $site_name = $_POST['site_name'];
-    $is_active = $_POST['is_active'];
+    $site_name = filter_input(INPUT_POST, 'site_name', FILTER_SANITIZE_SPECIAL_CHARS);
+    $is_active = filter_input(INPUT_POST, 'is_active', FILTER_SANITIZE_NUMBER_INT);
 
     // Check if the site already exists
     $stmt = $conn->prepare("SELECT site_id FROM sites WHERE site_name = ?");
@@ -35,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
         <form>
             <div class="alert alert-success">
-                <?php echo "Site $site_name already exists."; ?>
+                <?php echo htmlspecialchars("Site $site_name already exists.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
@@ -53,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
         <form>
             <div class="alert alert-success">
-                <?php echo "Site $site_name added successfully."; ?>
+                <?php echo htmlspecialchars("Site $site_name added successfully.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
@@ -61,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php        
         } else {
             echo '<div class="alert alert-danger">';
-            echo "Error: " . $stmt->error;
+            echo htmlspecialchars("Error: " . $stmt->error, ENT_QUOTES, 'UTF-8');
             echo '</div>';
         }
     }
@@ -70,3 +74,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 ?>
+</html>

@@ -41,8 +41,14 @@
                     <td>{{ category.category_name }}</td>
                     <td>{{ category.comment }}</td>
                     <td>
-                        <a href="edit_categories.php?id={{ category.id }}" class="btn btn-primary">Edit</a>
-                        <a href="delete_category.php?id={{ category.id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Category?');">Delete</a>
+                        <form action="edit_categories.php" method="get" style="display:inline;">
+                            <input type="hidden" name="id" value="{{ category.id }}">
+                            <button type="submit" class="btn btn-primary">Edit</button>
+                        </form>
+                        <form action="delete_category.php" method="get" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this tool?');">
+                            <input type="hidden" name="id" value="{{ category.id }}">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>  
                     </td>
                 </tr>
             {% else %}

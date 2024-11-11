@@ -15,15 +15,15 @@ $successMessage = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id'])) {
-        $id = $_POST['id'];
-        $name = $_POST['name'];
-        $category_id = $_POST['category_id'];
-        $supp_id = $_POST['supp_id'];
-        $site_id = $_POST['site_id'];
-        $price = $_POST['price'];
-        $dop = $_POST['dop'];
-        $quantity = $_POST['quantity'];
-        $description = $_POST['description'];
+        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
+        $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_SPECIAL_CHARS);
+        $category_id = filter_input(INPUT_POST, 'category_id', FILTER_SANITIZE_NUMBER_INT);
+        $supp_id = filter_input(INPUT_POST, 'supp_id', FILTER_SANITIZE_NUMBER_INT);
+        $site_id = filter_input(INPUT_POST, 'site_id', FILTER_SANITIZE_NUMBER_INT);
+        $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        $dop = filter_input(INPUT_POST, 'dop', FILTER_SANITIZE_SPECIAL_CHARS);
+        $quantity = filter_input(INPUT_POST, 'quantity', FILTER_SANITIZE_NUMBER_INT);
+        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_SPECIAL_CHARS);
 
         // Check if a new image is uploaded
         if (!empty($_FILES['image']['name'])) {
@@ -39,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($stmt->execute()) {
-            $successMessage = "Tool $name updated successfully.";
+            $successMessage = "Tool " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . " updated successfully.";
         } else {
-            echo "Error executing statement: " . $stmt->error . "<br>";
+            echo "Error executing statement: " . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8') . "<br>";
         }
 
         $stmt->close();
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" || $successMessage) {
     if (isset($_GET['id']) || isset($_POST['id'])) {
-        $id = $_GET['id'] ?? $_POST['id'];
+        $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT) ?? filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
         $sql = "SELECT tools.*, categories.category_name, suppliers.supp_name, sites.site_name 
                 FROM tools 
                 LEFT JOIN categories ON tools.category_id = categories.id 
@@ -79,11 +79,26 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" || $successMessage) {
 $conn->close();
 
 echo $twig->render('edit_tool.twig', [
-    'successMessage' => $successMessage,
-    'tool' => $tool,
-    'categories' => $categories,
-    'suppliers' => $suppliers,
-    'sites' => $sites,
+    'successMessage' => htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'),
+    'tool' => array_map('htmlspecialchars', $tool),
+    'categories' => array_map(function($category) {
+        return [
+            'id' => htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8'),
+            'category_name' => htmlspecialchars($category['category_name'], ENT_QUOTES, 'UTF-8')
+        ];
+    }, $categories),
+    'suppliers' => array_map(function($supplier) {
+        return [
+            'supp_id' => htmlspecialchars($supplier['supp_id'], ENT_QUOTES, 'UTF-8'),
+            'supp_name' => htmlspecialchars($supplier['supp_name'], ENT_QUOTES, 'UTF-8')
+        ];
+    }, $suppliers),
+    'sites' => array_map(function($site) {
+        return [
+            'site_id' => htmlspecialchars($site['site_id'], ENT_QUOTES, 'UTF-8'),
+            'site_name' => htmlspecialchars($site['site_name'], ENT_QUOTES, 'UTF-8')
+        ];
+    }, $sites),
     'image_required' => empty($tool['image']), // Check if image is already uploaded
     'pageTitle' => 'Edit Tools'
 ]);

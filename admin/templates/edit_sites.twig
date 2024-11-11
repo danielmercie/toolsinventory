@@ -14,7 +14,7 @@
         <form action="edit_sites.php" method="post">
             <input type="hidden" name="id" value="{{ id }}">
             <label for="site_name">Site Name:</label>
-            <input type="text" id="site_name" name="site_name" value="{{ site.site_name }}" required><br><br>            
+            <input type="text" id="site_name" name="site_name" value="{{ site.site_name }}" required maxlength="100"><br><br>            
             <label for="active">Active:</label>
             <input type="checkbox" id="active" name="active" {% if site.active %}checked{% endif %}><br><br>
                        

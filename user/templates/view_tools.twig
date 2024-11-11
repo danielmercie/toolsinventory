@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tools Inventory</title>
-    <link rel="stylesheet" type="text/css" href="../css/Site.css">
-    <script>
-        function clearSearchAndGoBack() {
-            document.cookie = "search=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.location.href = 'admin_dashboard.php';
-        }
-
-        function searchTools() {
-            var search = document.getElementById('search').value;
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'search_tools.php?search=' + encodeURIComponent(search), true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById('toolsTable').innerHTML = xhr.responseText;
-                }
-            };
-            xhr.send();
-        }
-    </script>
-</head>
+    {% include 'header.twig' %}
 <body>
-    <h2>Tools Inventory</h2>
+<script>
+    function clearSearchAndGoBack() {
+        document.cookie = "search=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.location.href = 'admin_dashboard.php';
+    }
+
+    function searchTools() {
+        var search = document.getElementById('search').value;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'search_tools.php?search=' + encodeURIComponent(search), true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    document.getElementById('toolsTable').innerHTML = xhr.responseText;
+                } else {
+                    console.error('Error: ' + xhr.statusText);
+                }
+            }
+        };
+        xhr.send();
+    }
+</script>
+<body>
+
     <form method="GET" action="user_dashboard.php">
         <input type="text" id="search" name="search" placeholder="Search tools..." value="{{ search }}" onkeyup="searchTools()">
         <button type="submit">Search</button>
@@ -60,7 +60,7 @@
                 <td>{{ tool.quantity }}</td>
                 <td><img src="{{ tool.image }}" width="100"></td>
                 <td>{{ tool.description }}</td>
-                </tr>
+            </tr>
         {% else %}
             <tr><td colspan="10">Data not found</td></tr>
         {% endfor %}
@@ -84,7 +84,6 @@
             {% endif %}
         </div>
         <br><br>
-        
     </center>
 </body>
 </html>

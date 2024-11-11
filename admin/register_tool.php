@@ -5,14 +5,14 @@ require_once '../logging/logactivity.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data
-    $name = $_POST['name'];
-    $supp_id = $_POST['supp_id'];
-    $price = $_POST['price'];
-    $dop = $_POST['dop'];
-    $quantity = $_POST['quantity'];
-    $description = $_POST['description'];
-    $category_id = $_POST['category_id'];
-    $site_id = $_POST['site_id'];
+    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_SPECIAL_CHARS);
+    $supp_id = filter_input(INPUT_POST, 'supp_id', FILTER_SANITIZE_NUMBER_INT);
+    $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+    $dop = filter_input(INPUT_POST, 'dop', FILTER_SANITIZE_SPECIAL_CHARS);
+    $quantity = filter_input(INPUT_POST, 'quantity', FILTER_SANITIZE_NUMBER_INT);
+    $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_SPECIAL_CHARS);
+    $category_id = filter_input(INPUT_POST, 'category_id', FILTER_SANITIZE_NUMBER_INT);
+    $site_id = filter_input(INPUT_POST, 'site_id', FILTER_SANITIZE_NUMBER_INT);
 
     // Handle file upload
     $target_dir = "../uploads/";
@@ -47,17 +47,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // if everything is ok, try to upload file
     } else {
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            // Insert data into database
-            $sql = "INSERT INTO tools (name, supp_id, price, dop, quantity, image, description, category_id, site_id) 
-                    VALUES ('$name', '$supp_id', '$price', '$dop', '$quantity', '$target_file', '$description', '$category_id', '$site_id')";
+            // Insert data into database using prepared statements
+            $stmt = $conn->prepare("INSERT INTO tools (name, supp_id, price, dop, quantity, image, description, category_id, site_id) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("siisissii", $name, $supp_id, $price, $dop, $quantity, $target_file, $description, $category_id, $site_id);
 
-            if ($conn->query($sql) === TRUE) {
-                echo "New tool added successfully";
-                header("Location: admin_dashboard.php");
-                exit();
+            if ($stmt->execute()) {
+                ?>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link rel="stylesheet" type="text/css" href="../css/Site.css">
+                <form>
+                    <div class="alert alert-success">
+                        <?php echo htmlspecialchars("Tool $name added successfully.", ENT_QUOTES, 'UTF-8'); ?>
+                        <br><br>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
+                    </div>
+                </form>
+                <?php   
             } else {
-                echo "Error: " . $sql . "<br>" . $conn->error;
+                echo "Error: " . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8');
             }
+
+            $stmt->close();
         } else {
             echo "Sorry, there was an error uploading your file.";
         }

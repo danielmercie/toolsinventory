@@ -7,16 +7,16 @@
         <div class="alert alert-success">
             {{ successMessage }}
             <br><br>
-            <a href="admin_dashboard.php" class="btn btn-primary">Go Back</a>
+            <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
         </div>
         </form>
     {% else %}
         <form action="edit_supplier.php" method="post">
             <input type="hidden" name="id" value="{{ id }}">
             <label for="supp_name">Supplier Name:</label>
-            <input type="text" id="supp_name" name="supp_name" value="{{ supplier.supp_name }}" required><br><br>
+            <input type="text" id="supp_name" name="supp_name" value="{{ supplier.supp_name }}" required maxlength="100"><br><br>
             <label for="phone_number">Phone Number:</label>
-            <input type="text" id="phone_number" name="phone_number" value="{{ supplier.phone_number }}" required><br><br>
+            <input type="text" id="phone_number" name="phone_number" value="{{ supplier.phone_number }}" required maxlength="15"><br><br>
                        
             <input type="submit" value="Update">
         </form>

@@ -13,22 +13,25 @@ $sites = [];
 $user = [];
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . htmlspecialchars($conn->connect_error, ENT_QUOTES, 'UTF-8'));
 }
 
 // Fetch sites from the database
 $siteResult = $conn->query("SELECT site_id, site_name FROM sites");
 while ($row = $siteResult->fetch_assoc()) {
-    $sites[] = $row;
+    $sites[] = [
+        'site_id' => htmlspecialchars($row['site_id'], ENT_QUOTES, 'UTF-8'),
+        'site_name' => htmlspecialchars($row['site_name'], ENT_QUOTES, 'UTF-8')
+    ];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id'])) {
-        $id = $_POST['id'];
-        $username = $_POST['username'];
+        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
+        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
         $password = $_POST['password'];
-        $role = $_POST['role'];
-        $site_id = $_POST['site_id'];
+        $role = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_SPECIAL_CHARS);
+        $site_id = filter_input(INPUT_POST, 'site_id', FILTER_SANITIZE_NUMBER_INT);
         $active = isset($_POST['active']) ? 1 : 0;
 
         // Fetch the current password if the new password is not provided
@@ -47,21 +50,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("sssiii", $username, $current_password, $role, $site_id, $active, $id);
 
         if ($stmt->execute()) {
-            $successMessage = "User $username updated successfully.";
+            $successMessage = "User " . htmlspecialchars($username, ENT_QUOTES, 'UTF-8') . " updated successfully.";
         } else {
-            echo "Error: " . $stmt->error;
+            echo "Error: " . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8');
         }
 
         $stmt->close();
-
-
-
     } else {
         echo "No user ID provided.";
     }
 } else {
     if (isset($_GET['id'])) {
-        $id = $_GET['id'];
+        $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
         $sql = "SELECT users.*, sites.site_name FROM users LEFT JOIN sites ON users.site_id = sites.site_id WHERE users.id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -69,6 +69,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
         $stmt->close();
+
+        // Sanitize user data
+        $user = array_map('htmlspecialchars', $user);
     } else {
         echo "No user ID provided.";
         exit;
@@ -78,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $conn->close();
 
 echo $twig->render('edit_user.twig', [
-    'successMessage' => $successMessage,
+    'successMessage' => htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'),
     'user' => $user,
     'sites' => $sites,
     'id' => $id ?? null,

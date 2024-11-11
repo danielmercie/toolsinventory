@@ -7,8 +7,8 @@ require_once '../includes/session.php';
 require_once '../logging/logactivity.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $category_name = $_POST['category_name'];
-    $comment = $_POST['comment'];
+    $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_SPECIAL_CHARS);
+    $comment = filter_input(INPUT_POST, 'comment', FILTER_SANITIZE_SPECIAL_CHARS);
 
     // Check if the category already exists
     $stmt = $conn->prepare("SELECT id FROM categories WHERE category_name = ?");
@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
         <form>
             <div class="alert alert-success">
-                <?php echo "Category $category_name already exists."; ?>
+                <?php echo htmlspecialchars("Category $category_name already exists.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
         <form>
             <div class="alert alert-success">
-                <?php echo "Category $category_name added successfully."; ?>
+                <?php echo htmlspecialchars("Category $category_name added successfully.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php        
         } else {
             echo '<div class="alert alert-danger">';
-            echo "Error: ";
+            echo htmlspecialchars("Error: " . $stmt->error, ENT_QUOTES, 'UTF-8');
             echo '</div>';
         }
     }

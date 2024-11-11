@@ -2,10 +2,9 @@
 <html lang="en">
     {% include 'header.twig' %}
 <body>
-    <h2>Add Site</h2>
     <form action="register_site.php" method="post">
         <label for="site_name">Site Name:</label>
-        <input type="text" id="site_name" name="site_name" required><br><br>
+        <input type="text" id="site_name" name="site_name" required maxlength="100"><br><br>
         
         <label for="is_active">Is Active:</label>
         <select id="is_active" name="is_active" required>

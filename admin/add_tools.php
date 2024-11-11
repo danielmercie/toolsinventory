@@ -32,5 +32,6 @@ $twig = new \Twig\Environment($loader);
 echo $twig->render('add_tools.twig', [
     'sites' => $sites,
     'categories' => $categories,
-    'suppliers' => $suppliers
+    'suppliers' => $suppliers,
+    'pageTitle' => 'Add Tools'
 ]);

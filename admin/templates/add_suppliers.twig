@@ -2,13 +2,13 @@
 <html lang="en">
     {% include 'header.twig' %}
 <body>
-    <h2>Add Supplier</h2>
+
     <form action="register_supplier.php" method="post">
         <label for="supplier_name">Supplier Name:</label>
-        <input type="text" id="supplier_name" name="supplier_name" required><br><br>
+        <input type="text" id="supplier_name" name="supplier_name" required maxlength="100"><br><br>
         
         <label for="phone_number">Phone Number:</label>
-        <input type="text" id="phone_number" name="phone_number" required><br><br>
+        <input type="text" id="phone_number" name="phone_number" required maxlength="15"><br><br>
         
         <input type="submit" value="Add Supplier">
         <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>

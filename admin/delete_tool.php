@@ -5,7 +5,7 @@
 require_once '../includes/session.php';
 include '../includes/db.php';
 
-$id = $_GET['id'];
+$id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 // Retrieve the tool name and image path before deleting
 $stmt = $conn->prepare("SELECT name, image FROM tools WHERE id = ?");
@@ -30,14 +30,14 @@ if ($stmt->execute()) {
     <link rel="stylesheet" type="text/css" href="../css/Site.css">
     <form>
         <div class="alert alert-success">
-        <?php echo "Tool $name and its image deleted successfully."; ?>
+        <?php echo htmlspecialchars("Tool $name and its image deleted successfully.", ENT_QUOTES, 'UTF-8'); ?>
         <br><br>
         <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
     </div>
 </form>
     <?php
 } else {
-    echo "Error: " . $stmt->error;
+    echo "Error: " . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8');
 }
 
 $stmt->close();

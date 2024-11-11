@@ -14,10 +14,10 @@
         <form action="edit_user.php" method="post">
             <input type="hidden" name="id" value="{{ user.id }}">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" value="{{ user.username }}" required><br><br>
+            <input type="text" id="username" name="username" value="{{ user.username }}" required maxlength="50"><br><br>
             
             <label for="password">Password:</label>
-            <input type="text" id="password" name="password"><br><br>
+            <input type="text" id="password" name="password" maxlength="100"><br><br>
             
             <label for="role">Role:</label>
             <select id="role" name="role" required>

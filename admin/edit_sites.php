@@ -11,29 +11,29 @@ $successMessage = "";
 $site = [];
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . htmlspecialchars($conn->connect_error, ENT_QUOTES, 'UTF-8'));
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id'])) {
-        $id = $_POST['id'];
-        $site_name = $_POST['site_name'];
+        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
+        $site_name = filter_input(INPUT_POST, 'site_name', FILTER_SANITIZE_SPECIAL_CHARS);
         $active = isset($_POST['active']) ? 1 : 0;
 
         $stmt = $conn->prepare("UPDATE sites SET site_name = ?, active = ? WHERE site_id = ?");
         $stmt->bind_param("sii", $site_name, $active, $id);
 
         if ($stmt->execute()) {
-            $successMessage = "Site $site_name updated successfully.";
+            $successMessage = "Site " . htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') . " updated successfully.";
         } else {
-            echo "Error: " . $stmt->error;
+            echo "Error: " . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8');
         }
 
         $stmt->close();
     }
 } else {
     if (isset($_GET['id'])) {
-        $id = $_GET['id'];
+        $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
         $stmt = $conn->prepare("SELECT site_name, active FROM sites WHERE site_id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -46,8 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $conn->close();
 
 echo $twig->render('edit_sites.twig', [
-    'successMessage' => $successMessage,
-    'site' => $site,
+    'successMessage' => htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'),
+    'site' => array_map('htmlspecialchars', $site),
     'id' => $id ?? null,
     'pageTitle' => 'Edit Sites'
 ]);

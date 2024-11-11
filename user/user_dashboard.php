@@ -22,13 +22,13 @@ $user_site_id = $user['site_id'];
 
 // Pagination setup
 $records_per_page = 10;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
 $start_from = ($page - 1) * $records_per_page;
 
 // Search setup
-$search = isset($_GET['search']) ? $_GET['search'] : (isset($_COOKIE['search']) ? $_COOKIE['search'] : '');
+$search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS) ?: (isset($_COOKIE['search']) ? htmlspecialchars($_COOKIE['search'], ENT_QUOTES, 'UTF-8') : '');
 if (isset($_GET['search'])) {
-    setcookie('search', $search, time() + (3600), "/"); // 3600 = 1 hour
+    setcookie('search', $search, time() + 3600, "/", "", true, true); // Secure and HTTP-only flags
 }
 
 // Fetch records with limit for pagination
@@ -73,9 +73,15 @@ $twig = new \Twig\Environment($loader);
 
 // Render the template
 echo $twig->render('view_tools.twig', [
-    'search' => $search,
-    'tools' => $tools,
+    'search' => htmlspecialchars($search, ENT_QUOTES, 'UTF-8'),
+    'tools' => array_map(function($tool) {
+        return array_map(function($value) {
+            return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+        }, $tool);
+    }, $tools),
     'page' => $page,
     'total_records' => $total_records,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Tools'
 ]);
+?>

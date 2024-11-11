@@ -14,10 +14,10 @@
         <form action="edit_categories.php" method="post">
             <input type="hidden" name="id" value="{{ id }}">
             <label for="category_name">Category:</label>
-            <input type="text" id="category_name" name="category_name" value="{{ category.category_name|e }}" required><br><br>
+            <input type="text" id="category_name" name="category_name" value="{{ category.category_name|e }}" required maxlength="50"><br><br>
             
             <label for="comment">Comment:</label>
-            <input type="text" id="comment" name="comment" value="{{ category.comment|e }}" required><br><br>
+            <input type="text" id="comment" name="comment" value="{{ category.comment|e }}" required maxlength="200"><br><br>
             
             <input type="submit" value="Update">
         </form>

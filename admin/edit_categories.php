@@ -10,11 +10,11 @@ $successMessage = "";
 $category = [];
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . htmlspecialchars($conn->connect_error, ENT_QUOTES, 'UTF-8'));
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
     $stmt = $conn->prepare("SELECT category_name, comment FROM categories WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -25,9 +25,9 @@ if (isset($_GET['id'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id'])) {
-        $id = $_POST['id'];
-        $category_name = $_POST['category_name'];
-        $comment = $_POST['comment'];
+        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
+        $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_SPECIAL_CHARS);
+        $comment = filter_input(INPUT_POST, 'comment', FILTER_SANITIZE_SPECIAL_CHARS);
 
         $stmt = $conn->prepare("UPDATE categories SET category_name = ?, comment = ? WHERE id = ?");
         $stmt->bind_param("ssi", $category_name, $comment, $id);
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             $successMessage = "Category updated successfully.";
         } else {
-            echo "Error: " . $stmt->error;
+            echo "Error: " . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8');
         }
     
         $stmt->close();
@@ -44,8 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 echo $twig->render('edit_categories.twig', [
-    'successMessage' => $successMessage,
-    'category' => $category,
+    'successMessage' => htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'),
+    'category' => array_map('htmlspecialchars', $category),
     'id' => $id ?? null,
     'pageTitle' => 'Edit Categories'
 ]);

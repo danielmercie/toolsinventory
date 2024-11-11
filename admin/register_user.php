@@ -10,19 +10,19 @@ require_once '../logging/logactivity.php';
 $sites = [];
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . htmlspecialchars($conn->connect_error));
 }
 
-$siteResult = $conn->query("SELECT site_id, site_name FROM sites");
+$siteResult = $conn->query("SELECT site_id, site_name, active FROM sites");
 while ($row = $siteResult->fetch_assoc()) {
     $sites[] = $row;
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-    $site_id = $_POST['site_id'];
+    $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
+    $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
+    $role = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_SPECIAL_CHARS);
+    $site_id = filter_input(INPUT_POST, 'site_id', FILTER_SANITIZE_NUMBER_INT);
 
     // Check if the username already exists
     $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
@@ -32,17 +32,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($stmt->num_rows > 0) {
         ?>
-         <meta charset="UTF-8">
+        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
-            <form>
+        <form>
             <div class="alert alert-success">
-                <?php echo "User $username already exists."; ?>
+                <?php echo htmlspecialchars("User $username already exists.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
-            </form>
-        
+        </form>
         <?php   
     } else {
         // Hash the password
@@ -57,17 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="../css/Site.css">
-            <form>
+        <form>
             <div class="alert alert-success">
-                <?php echo "User $username added successfully."; ?>
+                <?php echo htmlspecialchars("User $username added successfully.", ENT_QUOTES, 'UTF-8'); ?>
                 <br><br>
                 <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
             </div>
-            </form>
+        </form>
         <?php        
         } else {
             echo '<div class="alert alert-danger">';
-            echo "Error: " . $stmt->error;
+            echo htmlspecialchars("Error: " . $stmt->error, ENT_QUOTES, 'UTF-8');
             echo '</div>';
         }
     }
