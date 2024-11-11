@@ -54,5 +54,6 @@ echo $twig->render('view_logs.twig', [
     'logs' => $logs,
     'page' => $page,
     'total_records' => $total_records,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Logs'
 ]);

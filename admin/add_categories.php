@@ -16,5 +16,6 @@ $twig = new \Twig\Environment($loader);
 
 // Render the template
 echo $twig->render('add_categories.twig', [
-    'categories' => $categories
+    'categories' => $categories,
+    'pageTitle' => 'Add Categories'
 ]);

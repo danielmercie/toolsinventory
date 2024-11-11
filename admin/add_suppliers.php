@@ -16,5 +16,6 @@ $twig = new \Twig\Environment($loader);
 
 // Render the template
 echo $twig->render('add_suppliers.twig', [
-    'suppliers' => $suppliers
+    'suppliers' => $suppliers,
+    'pageTitle' => 'Add Suppliers'
 ]);

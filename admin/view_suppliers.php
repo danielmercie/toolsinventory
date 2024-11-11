@@ -56,6 +56,7 @@ echo $twig->render('view_suppliers.twig', [
     'suppliers' => $suppliers,
     'page' => $page,
     'total_records' => $total_records,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Suppliers'
 ]);
 ?>

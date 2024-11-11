@@ -89,6 +89,7 @@ echo $twig->render('view_tools.twig', [
     'tools' => $tools,
     'page' => $page,
     'total_records' => $total_records,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Tools'
 ]);
 ?>

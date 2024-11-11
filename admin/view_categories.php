@@ -46,5 +46,6 @@ echo $twig->render('view_categories.twig', [
     'categories' => $categories,
     'page' => $page,
     'total_records' => $total_records,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Categories'
 ]);

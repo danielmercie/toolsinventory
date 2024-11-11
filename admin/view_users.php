@@ -67,7 +67,8 @@ echo $twig->render('view_users.twig', [
     'search' => $search,
     'users' => $users,
     'page' => $page,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Users'
 ]);
 
 $conn->close();

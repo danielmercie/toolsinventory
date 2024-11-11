@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% include 'header.twig' %}
+<body>
+    {% if successMessage %}
+        <form>
+        <div class="alert alert-success">
+            {{ successMessage }}
+            <br><br>
+            <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
+        </div>
+    </form>
+    {% else %}
+        <form action="edit_sites.php" method="post">
+            <input type="hidden" name="id" value="{{ id }}">
+            <label for="site_name">Site Name:</label>
+            <input type="text" id="site_name" name="site_name" value="{{ site.site_name }}" required><br><br>            
+            <label for="active">Active:</label>
+            <input type="checkbox" id="active" name="active" {% if site.active %}checked{% endif %}><br><br>
+                       
+            <input type="submit" value="Update">
+        </form>
+        <center>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
+    </center>
+    {% endif %}
+</body>
+</html>

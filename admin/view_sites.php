@@ -54,6 +54,7 @@ echo $twig->render('view_sites.twig', [
     'search' => $search,
     'sites' => $sites,
     'page' => $page,
-    'total_pages' => $total_pages
+    'total_pages' => $total_pages,
+    'pageTitle' => 'View Sites'
 ]);
 ?>

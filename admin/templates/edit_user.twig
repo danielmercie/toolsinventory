@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% include 'header.twig' %}
+<body>
+    {% if successMessage %}
+    <form>
+        <div class="alert alert-success">
+            {{ successMessage }}
+            <br><br>
+            <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
+        </div>
+    </form>
+    {% else %}
+        <form action="edit_user.php" method="post">
+            <input type="hidden" name="id" value="{{ user.id }}">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" value="{{ user.username }}" required><br><br>
+            
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password"><br><br>
+            
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="ADMIN" {% if user.role == 'ADMIN' %}selected{% endif %}>ADMIN</option>
+                <option value="USER" {% if user.role == 'USER' %}selected{% endif %}>USER</option>
+            </select><br><br>
+            
+            <label for="site">Site:</label>
+            <select id="site" name="site_id" required>
+                {% for site in sites %}
+                    <option value="{{ site.site_id }}" {% if user.site_id == site.site_id %}selected{% endif %}>{{ site.site_name }}</option>
+                {% endfor %}
+            </select><br><br>
+            
+            <label for="active">Active:</label>
+            <input type="checkbox" id="active" name="active" {% if user.active %}checked{% endif %}><br><br>
+            
+            <input type="submit" value="Update">
+        </form>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='admin_dashboard.php'">Go Back</button>
+    {% endif %}
+</body>
+</html>

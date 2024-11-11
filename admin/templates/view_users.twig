@@ -1,35 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Control Panel</title>
-    <link rel="stylesheet" type="text/css" href="../css/Site.css">
-    <script>
-       function clearSearchAndGoBack() {
-            window.location.href = 'admin_dashboard.php?clear_search_cookie=true';
-            }
+    {% include 'header.twig' %}
+<script>
+    function clearSearchAndGoBack() {
+         window.location.href = 'admin_dashboard.php?clear_search_cookie=true';
+         }
 
-        function searchUsers() {
-            var search = document.getElementById('search').value;
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'view_users.php?search=' + encodeURIComponent(search), true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(xhr.responseText, 'text/html');
-                    var newTableBody = doc.querySelector('#usersTable tbody').innerHTML;
-                    document.querySelector('#usersTable tbody').innerHTML = newTableBody;
-                }
-            };
-            xhr.send();
-        }
-    </script>
-</head>
+     function searchUsers() {
+         var search = document.getElementById('search').value;
+         var xhr = new XMLHttpRequest();
+         xhr.open('GET', 'view_users.php?search=' + encodeURIComponent(search), true);
+         xhr.onreadystatechange = function() {
+             if (xhr.readyState == 4 && xhr.status == 200) {
+                 var parser = new DOMParser();
+                 var doc = parser.parseFromString(xhr.responseText, 'text/html');
+                 var newTableBody = doc.querySelector('#usersTable tbody').innerHTML;
+                 document.querySelector('#usersTable tbody').innerHTML = newTableBody;
+             }
+         };
+         xhr.send();
+     }
+ </script>
 <body>
-    <div class="page-header">
-        <h2 id="forms">User Control Panel</h2>
-    </div>
+
     <div class="well bs-component">
         <form method="GET" action="view_users.php">
             <input type="text" id="search" name="search" placeholder="Search users..." value="{{ search }}" onkeyup="searchUsers()">

@@ -17,5 +17,6 @@ $twig = new \Twig\Environment($loader);
 
 // Render the template
 echo $twig->render('add_sites.twig', [
-    'sites' => $sites
+    'sites' => $sites,
+    'pageTitle' => 'Add Sites'
 ]);
