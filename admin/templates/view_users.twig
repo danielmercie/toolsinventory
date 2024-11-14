@@ -62,17 +62,17 @@
         <center>
             <div class="body">
                 {% if page >= 2 %}
-                    <a class="active" href="view_users.php?page={{ page - 1 }}&search={{ search }}">Prev</a>
+                    <a class="pagination" href="view_users.php?page={{ page - 1 }}&search={{ search }}">Prev</a>
                 {% endif %}
                 {% for i in 1..total_pages %}
                     {% if i == page %}
-                        <a class="active" href="view_users.php?page={{ i }}&search={{ search }}">{{ i }}</a>
+                        <a class="pagination" href="view_users.php?page={{ i }}&search={{ search }}">{{ i }}</a>
                     {% else %}
-                        <a class="active" href="view_users.php?page={{ i }}&search={{ search }}">{{ i }}</a>
+                        <a class="pagination" href="view_users.php?page={{ i }}&search={{ search }}">{{ i }}</a>
                     {% endif %}
                 {% endfor %}
                 {% if page < total_pages %}
-                    <a class="active" href="view_users.php?page={{ page + 1 }}&search={{ search }}">Next</a>
+                    <a class="pagination" href="view_users.php?page={{ page + 1 }}&search={{ search }}">Next</a>
                 {% endif %}
             </div>
             <br><br>

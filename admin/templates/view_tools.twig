@@ -4,7 +4,7 @@
 <script>
     function clearSearchAndGoBack() {
         window.location.href = 'admin_dashboard.php?clear_search_cookie=true';
-        }
+    }
 
     function searchTools() {
         var search = document.getElementById('search').value;
@@ -21,6 +21,8 @@
 <body>
     <form method="GET" action="view_tools.php">
         <input type="text" id="search" name="search" placeholder="Search tools..." value="{{ search }}" onkeyup="searchTools()">
+        <input type="number" name="min_price" placeholder="Min Price" value="{{ min_price }}">
+        <input type="number" name="max_price" placeholder="Max Price" value="{{ max_price }}">
         <button type="submit">Search</button>
     </form>
     <table id="toolsTable">
@@ -42,7 +44,7 @@
                 <td>{{ tool.category_name }}</td>
                 <td>{{ tool.supp_name }}</td>
                 <td>{{ tool.site_name }}</td>
-                <td>€{{ tool.price }}</td>
+                <td>&euro;{{ tool.price }}</td>
                 <td>{{ tool.dop }}</td>
                 <td>{{ tool.quantity }}</td>
                 <td><img src="{{ tool.image }}" width="100"></td>
@@ -67,17 +69,17 @@
             Total Records: {{ total_records }}<br>
             Total Pages: {{ total_pages }}<br>
             {% if page >= 2 %}
-                <a class="active" href="view_tools.php?page={{ page - 1 }}&search={{ search }}">Prev</a>
+                <a class="active" href="view_tools.php?page={{ page - 1 }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">Prev</a>
             {% endif %}
             {% for i in 1..total_pages %}
                 {% if i == page %}
-                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}">{{ i }}</a>
+                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ i }}</a>
                 {% else %}
-                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}">{{ i }}</a>
+                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ i }}</a>
                 {% endif %}
             {% endfor %}
             {% if page < total_pages %}
-                <a class="active" href="view_tools.php?page={{ page + 1 }}&search={{ search }}">Next</a>
+                <a class="active" href="view_tools.php?page={{ page + 1 }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">Next</a>
             {% endif %}
         </div>
         <br><br>

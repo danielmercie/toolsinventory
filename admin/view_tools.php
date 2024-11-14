@@ -8,8 +8,14 @@ $records_per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $records_per_page;
 
-// Search setup
+// Search and filter setup
 $search = isset($_GET['search']) ? htmlspecialchars($_GET['search'], ENT_QUOTES, 'UTF-8') : (isset($_COOKIE['search']) ? htmlspecialchars($_COOKIE['search'], ENT_QUOTES, 'UTF-8') : '');
+$min_price = filter_input(INPUT_GET, 'min_price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+$max_price = filter_input(INPUT_GET, 'max_price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+
+$min_price = $min_price !== null ? (float)$min_price : null;
+$max_price = $max_price !== null ? (float)$max_price : null;
+
 if (isset($_GET['search'])) {
     setcookie('search', $search, time() + 3600, "/", "", true, true); // Secure and HTTP-only flags
 }
@@ -39,21 +45,40 @@ if ($head_office_store_id !== null) {
     $stmt->close();
 }
 
-// Fetch records with limit for pagination
+// Build the SQL query with conditional price range
 $sql = "SELECT tools.id, tools.name, categories.category_name, suppliers.supp_name, sites.site_id, sites.site_name, sites.active, tools.price, tools.dop, tools.quantity, tools.image, tools.description 
         FROM tools 
         LEFT JOIN categories ON tools.category_id = categories.id 
         LEFT JOIN suppliers ON tools.supp_id = suppliers.supp_id 
         LEFT JOIN sites ON tools.site_id = sites.site_id 
-        WHERE tools.name LIKE ? 
+        WHERE (tools.name LIKE ? 
         OR tools.description LIKE ? 
         OR categories.category_name LIKE ? 
         OR suppliers.supp_name LIKE ? 
-        OR sites.site_name LIKE ? 
-        LIMIT ?, ?";
+        OR sites.site_name LIKE ?)";
+
+$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%"];
+$types = "sssss";
+
+if ($min_price !== null) {
+    $sql .= " AND tools.price >= ?";
+    $params[] = $min_price;
+    $types .= "d";
+}
+
+if ($max_price !== null) {
+    $sql .= " AND tools.price <= ?";
+    $params[] = $max_price;
+    $types .= "d";
+}
+
+$sql .= " LIMIT ?, ?";
+$params[] = $start_from;
+$params[] = $records_per_page;
+$types .= "ii";
+
 $stmt = $conn->prepare($sql);
-$search_param = "%$search%";
-$stmt->bind_param("ssssiii", $search_param, $search_param, $search_param, $search_param, $search_param, $start_from, $records_per_page);
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 $tools = [];
@@ -69,9 +94,34 @@ if ($result->num_rows > 0) {
 $stmt->close();
 
 // Pagination logic
-$sql = "SELECT COUNT(id) AS total FROM tools WHERE name LIKE ?";
+$sql = "SELECT COUNT(tools.id) AS total 
+        FROM tools 
+        LEFT JOIN categories ON tools.category_id = categories.id 
+        LEFT JOIN suppliers ON tools.supp_id = suppliers.supp_id 
+        LEFT JOIN sites ON tools.site_id = sites.site_id 
+        WHERE (tools.name LIKE ? 
+        OR tools.description LIKE ? 
+        OR categories.category_name LIKE ? 
+        OR suppliers.supp_name LIKE ? 
+        OR sites.site_name LIKE ?)";
+
+$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%"];
+$types = "sssss";
+
+if ($min_price !== null) {
+    $sql .= " AND tools.price >= ?";
+    $params[] = $min_price;
+    $types .= "d";
+}
+
+if ($max_price !== null) {
+    $sql .= " AND tools.price <= ?";
+    $params[] = $max_price;
+    $types .= "d";
+}
+
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $search_param);
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
@@ -86,6 +136,8 @@ $twig = new \Twig\Environment($loader);
 // Render the template
 echo $twig->render('view_tools.twig', [
     'search' => $search,
+    'min_price' => $min_price,
+    'max_price' => $max_price,
     'tools' => $tools,
     'page' => $page,
     'total_records' => $total_records,

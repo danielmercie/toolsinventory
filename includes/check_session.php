@@ -2,8 +2,8 @@
 session_start();
 include '../includes/db.php';
 
-// Set session timeout duration (e.g., 5 minutes)
-$timeout_duration = 300;
+// Set session timeout duration
+$timeout_duration = 3600;
 
 // Ensure session uses secure cookies
 ini_set('session.cookie_secure', 1);
