@@ -12,9 +12,12 @@ $start_from = ($page - 1) * $records_per_page;
 $search = isset($_GET['search']) ? htmlspecialchars($_GET['search'], ENT_QUOTES, 'UTF-8') : (isset($_COOKIE['search']) ? htmlspecialchars($_COOKIE['search'], ENT_QUOTES, 'UTF-8') : '');
 $min_price = filter_input(INPUT_GET, 'min_price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 $max_price = filter_input(INPUT_GET, 'max_price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-
 $min_price = $min_price !== null ? (float)$min_price : null;
 $max_price = $max_price !== null ? (float)$max_price : null;
+$min_price_sql = $min_price !== null ? $min_price : 0;
+$max_price_sql = $max_price !== null ? $max_price : PHP_INT_MAX;
+
+
 
 if (isset($_GET['search'])) {
     setcookie('search', $search, time() + 3600, "/", "", true, true); // Secure and HTTP-only flags
@@ -44,7 +47,6 @@ if ($head_office_store_id !== null) {
     $stmt->execute();
     $stmt->close();
 }
-
 // Build the SQL query with conditional price range
 $sql = "SELECT tools.id, tools.name, categories.category_name, suppliers.supp_name, sites.site_id, sites.site_name, sites.active, tools.price, tools.dop, tools.quantity, tools.image, tools.description 
         FROM tools 
@@ -55,22 +57,11 @@ $sql = "SELECT tools.id, tools.name, categories.category_name, suppliers.supp_na
         OR tools.description LIKE ? 
         OR categories.category_name LIKE ? 
         OR suppliers.supp_name LIKE ? 
-        OR sites.site_name LIKE ?)";
+        OR sites.site_name LIKE ?)
+        AND tools.price BETWEEN ? AND ?";
 
-$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%"];
-$types = "sssss";
-
-if ($min_price !== null) {
-    $sql .= " AND tools.price >= ?";
-    $params[] = $min_price;
-    $types .= "d";
-}
-
-if ($max_price !== null) {
-    $sql .= " AND tools.price <= ?";
-    $params[] = $max_price;
-    $types .= "d";
-}
+$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%", $min_price, $max_price];
+$types = "ssssssd";
 
 $sql .= " LIMIT ?, ?";
 $params[] = $start_from;
@@ -103,22 +94,11 @@ $sql = "SELECT COUNT(tools.id) AS total
         OR tools.description LIKE ? 
         OR categories.category_name LIKE ? 
         OR suppliers.supp_name LIKE ? 
-        OR sites.site_name LIKE ?)";
+        OR sites.site_name LIKE ?)
+        AND tools.price BETWEEN ? AND ?";
 
-$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%"];
-$types = "sssss";
-
-if ($min_price !== null) {
-    $sql .= " AND tools.price >= ?";
-    $params[] = $min_price;
-    $types .= "d";
-}
-
-if ($max_price !== null) {
-    $sql .= " AND tools.price <= ?";
-    $params[] = $max_price;
-    $types .= "d";
-}
+$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%", $min_price, $max_price];
+$types = "ssssssd";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($types, ...$params);

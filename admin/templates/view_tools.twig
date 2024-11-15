@@ -44,7 +44,7 @@
                 <td>{{ tool.category_name }}</td>
                 <td>{{ tool.supp_name }}</td>
                 <td>{{ tool.site_name }}</td>
-                <td>&euro;{{ tool.price }}</td>
+                <td>€{{ tool.price }}</td>
                 <td>{{ tool.dop }}</td>
                 <td>{{ tool.quantity }}</td>
                 <td><img src="{{ tool.image }}" width="100"></td>
@@ -69,17 +69,17 @@
             Total Records: {{ total_records }}<br>
             Total Pages: {{ total_pages }}<br>
             {% if page >= 2 %}
-                <a class="active" href="view_tools.php?page={{ page - 1 }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">Prev</a>
+                <a class="active" href="view_tools.php?page={{ page - 1 }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">Prev</a>
             {% endif %}
             {% for i in 1..total_pages %}
                 {% if i == page %}
-                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ i }}</a>
+                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">{{ i }}</a>
                 {% else %}
-                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ i }}</a>
+                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">{{ i }}</a>
                 {% endif %}
             {% endfor %}
             {% if page < total_pages %}
-                <a class="active" href="view_tools.php?page={{ page + 1 }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">Next</a>
+                <a class="active" href="view_tools.php?page={{ page + 1 }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">Next</a>
             {% endif %}
         </div>
         <br><br>
