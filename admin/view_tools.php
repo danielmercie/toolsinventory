@@ -10,15 +10,10 @@ $start_from = ($page - 1) * $records_per_page;
 
 // Search and filter setup
 $search = isset($_GET['search']) ? htmlspecialchars($_GET['search'], ENT_QUOTES, 'UTF-8') : (isset($_COOKIE['search']) ? htmlspecialchars($_COOKIE['search'], ENT_QUOTES, 'UTF-8') : '');
-$min_price = filter_input(INPUT_GET, 'min_price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-$max_price = filter_input(INPUT_GET, 'max_price', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-$min_price = $min_price !== null ? (float)$min_price : null;
-$max_price = $max_price !== null ? (float)$max_price : null;
-$min_price_sql = $min_price !== null ? $min_price : 0;
-$max_price_sql = $max_price !== null ? $max_price : PHP_INT_MAX;
+$min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (float)$_GET['min_price'] : 0;
+$max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (float)$_GET['max_price'] : null; // Now null if not set
 
-
-
+// Set cookie for search if provided
 if (isset($_GET['search'])) {
     setcookie('search', $search, time() + 3600, "/", "", true, true); // Secure and HTTP-only flags
 }
@@ -36,18 +31,7 @@ if ($result->num_rows > 0) {
 }
 $stmt->close();
 
-// Update site_id for all inactive sites
-if ($head_office_store_id !== null) {
-    $update_sql = "UPDATE tools 
-                   LEFT JOIN sites ON tools.site_id = sites.site_id 
-                   SET tools.site_id = ? 
-                   WHERE sites.active = 0";
-    $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("i", $head_office_store_id);
-    $stmt->execute();
-    $stmt->close();
-}
-// Build the SQL query with conditional price range
+// Build the SQL query
 $sql = "SELECT tools.id, tools.name, categories.category_name, suppliers.supp_name, sites.site_id, sites.site_name, sites.active, tools.price, tools.dop, tools.quantity, tools.image, tools.description 
         FROM tools 
         LEFT JOIN categories ON tools.category_id = categories.id 
@@ -58,24 +42,30 @@ $sql = "SELECT tools.id, tools.name, categories.category_name, suppliers.supp_na
         OR categories.category_name LIKE ? 
         OR suppliers.supp_name LIKE ? 
         OR sites.site_name LIKE ?)
-        AND tools.price BETWEEN ? AND ?";
+        AND tools.price BETWEEN ? AND IFNULL(?, tools.price) -- Handle dynamic max price
+        LIMIT ?, ?";
 
-$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%", $min_price, $max_price];
-$types = "ssssssd";
-
-$sql .= " LIMIT ?, ?";
-$params[] = $start_from;
-$params[] = $records_per_page;
-$types .= "ii";
+$params = [
+    "%$search%", "%$search%", "%$search%", "%$search%", "%$search%", 
+    $min_price, $max_price, 
+    $start_from, $records_per_page
+];
+$types = "sssssddii";
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Query preparation failed: " . $conn->error);
+}
 $stmt->bind_param($types, ...$params);
-$stmt->execute();
+if (!$stmt->execute()) {
+    die("Query execution failed: " . $stmt->error);
+}
+
 $result = $stmt->get_result();
 $tools = [];
 if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        // Update the site_name to "Head Office Store" if the site_id was changed
+    while ($row = $result->fetch_assoc()) {
+        // Adjust site name for inactive sites
         if ($row['site_id'] == $head_office_store_id) {
             $row['site_name'] = 'Stores Head Office';
         }
@@ -95,17 +85,26 @@ $sql = "SELECT COUNT(tools.id) AS total
         OR categories.category_name LIKE ? 
         OR suppliers.supp_name LIKE ? 
         OR sites.site_name LIKE ?)
-        AND tools.price BETWEEN ? AND ?";
+        AND tools.price BETWEEN ? AND IFNULL(?, tools.price)"; // Adjusted pagination query
 
-$params = ["%$search%", "%$search%", "%$search%", "%$search%", "%$search%", $min_price, $max_price];
-$types = "ssssssd";
+$params = [
+    "%$search%", "%$search%", "%$search%", "%$search%", "%$search%", 
+    $min_price, $max_price
+];
+$types = "sssssdd";
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Query preparation failed: " . $conn->error);
+}
 $stmt->bind_param($types, ...$params);
-$stmt->execute();
+if (!$stmt->execute()) {
+    die("Query execution failed: " . $stmt->error);
+}
+
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
-$total_records = $row['total'];
+$total_records = (int)$row['total'];
 $total_pages = ceil($total_records / $records_per_page);
 $stmt->close();
 
@@ -122,6 +121,6 @@ echo $twig->render('view_tools.twig', [
     'page' => $page,
     'total_records' => $total_records,
     'total_pages' => $total_pages,
-    'pageTitle' => 'View Tools'
+    'pageTitle' => 'Tools Inventory',
 ]);
 ?>

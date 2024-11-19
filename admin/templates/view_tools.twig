@@ -19,10 +19,14 @@
     }
 </script>
 <body>
-    <form method="GET" action="view_tools.php">
-        <input type="text" id="search" name="search" placeholder="Search tools..." value="{{ search }}" onkeyup="searchTools()">
-        <input type="number" name="min_price" placeholder="Min Price" value="{{ min_price }}">
-        <input type="number" name="max_price" placeholder="Max Price" value="{{ max_price }}">
+    <form method="get" action="">
+        <input type="text" name="search" value="{{ search }}" placeholder="Search...">
+        <input type="number" name="min_price" 
+               value="{{ min_price is defined and min_price != 0 ? min_price : '' }}" 
+               placeholder="Min Price">
+        <input type="number" name="max_price" 
+               value="{{ max_price is defined and max_price != 9223372036854775807 ? max_price : '' }}" 
+               placeholder="Max Price">
         <button type="submit">Search</button>
     </form>
     <table id="toolsTable">
@@ -69,17 +73,19 @@
             Total Records: {{ total_records }}<br>
             Total Pages: {{ total_pages }}<br>
             {% if page >= 2 %}
-                <a class="active" href="view_tools.php?page={{ page - 1 }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">Prev</a>
+                <a href="view_tools.php?page={{ page - 1 }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">Prev</a>
             {% endif %}
+
             {% for i in 1..total_pages %}
-                {% if i == page %}
-                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">{{ i }}</a>
-                {% else %}
-                    <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">{{ i }}</a>
-                {% endif %}
+            {% if i == page %}
+                <a class="active" href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ i }}</a>
+            {% else %}
+                <a href="view_tools.php?page={{ i }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ i }}</a>
+            {% endif %}
             {% endfor %}
+
             {% if page < total_pages %}
-                <a class="active" href="view_tools.php?page={{ page + 1 }}&search={{ search }}&min_price={{ min_price|default(0) }}&max_price={{ max_price|default(PHP_INT_MAX) }}">Next</a>
+                <a href="view_tools.php?page={{ page + 1 }}&search={{ search }}&min_price={{ min_price }}&max_price={{ max_price }}">Next</a>
             {% endif %}
         </div>
         <br><br>
